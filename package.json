@@ -1,0 +1,16 @@
+{
+  "name": "node-raspberry-security",
+  "version": "1.0.0",
+  "description": "Node.js Raspberry Pi security camera with Google photos integration",
+  "main": "app.js",
+  "dependencies": {
+    "futures": "*",
+    "lodash": "*",
+    "raspicam": "*",
+    "flickrapi": "*",
+    "gm": "*",
+    "moment": "*",
+    "chokidar": "*",
+    "node-schedule": "*"
+  }
+}
