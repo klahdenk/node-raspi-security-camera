@@ -12,12 +12,12 @@ var schedule = require('node-schedule');
 var prevFilename;
 var cameraOpts = {
 	mode: "timelapse",	
-	timelapse: 3000,
+	timelapse: 500,
 	timeout: 0,
 	output: __dirname + "/" + CAM_OUTPUT_FOLDER + "/image_%06d.png",
 	width: 259,
 	height: 194,
-	quality: 50,
+	quality: 30,
 	encoding: "png",
 	exposure: "auto",
 	awb: "auto",
@@ -26,6 +26,7 @@ var cameraOpts = {
 };
 
 var detect = function() {
+	var root = __dirname + "/" + CAM_OUTPUT_FOLDER;
 	var camera = new RaspiCam(cameraOpts);
 	camera.on("read", function(err, timestamp, filename) {
 		console.log(filename, prevFilename);
@@ -34,9 +35,8 @@ var detect = function() {
 			return;
 		}
 		if (prevFilename && filename.indexOf("~") === -1) {
-			var tolerance = 1.5;
+			var tolerance = 0.1;
 			console.log("comparing...");
-			var root = __dirname + "/" + CAM_OUTPUT_FOLDER;
 			var file1 = root + "/" + prevFilename;
 			var file2 = root + "/" + filename;
 			gm.compare(file1, file2, tolerance, function(err, isEqual, equality, raw) {
@@ -48,6 +48,7 @@ var detect = function() {
 			});
 		}
 		if (filename.indexOf("~") === -1) {
+			fs.unlinkSync(root + "/" + prevFilename);
 			prevFilename = filename;
 		}
 	});
