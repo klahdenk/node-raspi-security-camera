@@ -5,6 +5,7 @@ var MAX_HEIGHT = 1944;
 var RaspiCam = require("raspicam");
 var moment = require("moment");
 var fs = require("fs");
+var fse = require("fs-extra");
 var gm = require("gm");
 var schedule = require('node-schedule');
 
@@ -12,6 +13,7 @@ var prevFilename;
 var cameraOpts = {
 	mode: "timelapse",	
 	timelapse: 3000,
+	timeout: 0,
 	output: __dirname + "/" + CAM_OUTPUT_FOLDER + "/image_%06d.png",
 	width: MAX_WIDTH,
 	height: MAX_HEIGHT,
@@ -19,7 +21,8 @@ var cameraOpts = {
 	encoding: "png",
 	exposure: "auto",
 	awb: "auto",
-	metering: "matrix"
+	metering: "matrix",
+	nopreview: true
 };
 
 var detect = function() {
@@ -31,19 +34,17 @@ var detect = function() {
 			return;
 		}
 		if (prevFilename && filename.indexOf("~") === -1) {
-			var tolerance = 15;
+			var tolerance = 150;
 			console.log("comparing...");
 			gm.compare(prevFilename, filename, tolerance, function(err, isEqual, equality) {
 				if (!isEqual) {
 					console.log("movement!");
-					fs.createReadStream(__dirname + "/" + CAM_OUTPUT_FOLDER + "/" + filename).pipe(fs.createWriteStream(__dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".jpg"));
+					fse.copySync(__dirname + "/" + CAM_OUTPUT_FOLDER + "/" + filename, __dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".jpg");
+					console.log("copied " + filename + " to queue");
 				}
 			});
 		}
 		if (filename.indexOf("~") === -1) {
-			fs.unlink(prevFilename, function() {
-				console.log("removed files");
-			});
 			prevFilename = filename;
 		}
 	});
@@ -53,3 +54,4 @@ var detect = function() {
 module.exports = {
 	detect: detect
 };
+

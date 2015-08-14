@@ -2,25 +2,24 @@ var PHOTO_QUEUE_DIR = "photo_queue";
 
 var chokidar = require("chokidar");
 var fs = require("fs");
+var cp = require("child_process");
 var _ = require("lodash");
 
 var flickr = require("./flickr");
 var motion = require("./motion");
 
-// check if there are files in queue on startup and upload
-var files = fs.readdirSync(__dirname + "/" + PHOTO_QUEUE_DIR);
-if (files.length > 0) {
-	var paths = _.map(files, function(file) {
-		return __dirname + "/" + PHOTO_QUEUE_DIR + "/" + file;
-	});
-	flickr.uploadPhotos(paths);	
-}
-
 // Watch for files added to upload queue
-var watcher = chokidar.watch(__dirname + "/" + PHOTO_QUEUE_DIR);
-watcher.on("rename", function(path) {
+var watcher = chokidar.watch(__dirname + "/" + PHOTO_QUEUE_DIR, {
+	persistent: true,
+	usePolling: true
+});
+watcher.on("add", function(path) {
+	console.log("new file in upload queue, uploading: ", path);
 	flickr.uploadPhotos([path]);
 });
+watcher.on("all", function(event, path) {
+	console.log("event: ", event);
+	console.log("path: ", path);
+});
 
-// Detect motion
 motion.detect();

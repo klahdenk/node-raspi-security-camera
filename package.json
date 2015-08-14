@@ -4,6 +4,7 @@
   "description": "Node.js Raspberry Pi security camera with Google photos integration",
   "main": "app.js",
   "dependencies": {
+    "fs-extra": "*",
     "lodash": "*",
     "raspicam": "*",
     "flickrapi": "*",
