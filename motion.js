@@ -34,12 +34,15 @@ var detect = function() {
 			return;
 		}
 		if (prevFilename && filename.indexOf("~") === -1) {
-			var tolerance = 5000;
+			var tolerance = 1.5;
 			console.log("comparing...");
-			gm.compare(prevFilename, filename, tolerance, function(err, isEqual, equality, raw) {
+			var root = __dirname + "/" + CAM_OUTPUT_FOLDER;
+			var file1 = root + "/" + prevFilename;
+			var file2 = root + "/" + filename;
+			gm.compare(file1, file2, tolerance, function(err, isEqual, equality, raw) {
 				if (!isEqual) {
 					console.log("movement! " + raw);
-					fse.copySync(__dirname + "/" + CAM_OUTPUT_FOLDER + "/" + filename, __dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".png");
+					fse.copySync(file2, __dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".png");
 					console.log("copied " + filename + " to queue");
 				}
 			});
