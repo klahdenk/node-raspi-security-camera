@@ -11,6 +11,11 @@ _.extend(FlickrOptions, JSON.parse(fs.readFileSync("keys/flickr_access_token.jso
 
 var uploadPhotos = function(files) {
 	Flickr.authenticate(FlickrOptions, function(error, flickr) {
+		if (error) {
+			console.error("Authentication error: ", error);			
+			return;
+		}
+		
 		var photos = [];
 		_.each(files, function(file) {
 			photos.push({
