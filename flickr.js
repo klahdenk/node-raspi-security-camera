@@ -2,7 +2,7 @@ var fs = require("fs");
 var _ = require("lodash");
 var moment = require("moment");
 var futures = require("futures");
-var joins = require("join");
+var joins = futures.join;
 
 var Flickr = require("flickrapi");
 var FlickrOptions = {
@@ -31,39 +31,36 @@ var connect = function() {
 var uploadPhotos = function(files) {
 	uploading = true;
 	var join = joins.create();
-	connect().when(function(error, flickr) {
-		console.log("Flickr", flickr);
-		if (error) {
-			future.deliver(error, undefined);
-		}
-		_.each(files, function(file) {
-			var context = {
-				photos: [{
-		      		title: moment().format("YYYY-MM-DD"),
-		      		tags: [],
-		      		photo: file,
-		      		is_public: 0,
-		      		is_friend: 0,
-		      		is_family: 0
-				}]
-			};
-			var future = futures.future.create(context);
-			console.log("Uploading files: ", files);
+	_.each(files, function(file) {
+		var context = {
+			photos: [{
+	      		title: moment().format("YYYY-MM-DD"),
+	      		tags: [],
+	      		photo: file,
+	      		is_public: 0,
+	      		is_friend: 0,
+	      		is_family: 0
+			}]
+		};
+		var future = futures.future.create(context);
+		join.add(future);
+		connect().when(function(error, flickr) {
+			if (error) {
+				future.deliver(error, undefined);
+			}
+			console.log("Uploading files: ", file);
 		  	Flickr.upload(context, FlickrOptions, function(err, result) {
-				console.log("Uploaded...");
+				console.log("Uploaded...", result);
 		    	if(err) {
 		      		console.error(err);
 		      		future.deliver(err, undefined);
 		    	}
 		    	else {
-			    	_.each(files, function(file) {
-						console.log("Deleting: ", file);
-			    		fs.unlinkSync(file);	    		
-			    	});
+					console.log("Deleting: ", file);
+		    		fs.unlinkSync(file);	    		
 			    	future.deliver(undefined, result);
 		    	}
 		  	});
-			join.add(future);
 		});
 	});
 	return join;
@@ -77,10 +74,13 @@ var enqueue = function(files) {
 var purge = function() {
 	if (!uploading) {		
 		var filesToUpload = fileArray.splice(0, 5);
-		uploadPhotos(filesToUpload).when(function(err, data) {
-			uploading = false;			
-			console.log("Done uploading!");
-		});
+		if (filesToUpload.length > 0) {
+			uploadPhotos(filesToUpload).when(function(err, data) {
+				uploading = false;			
+				console.log("Done uploading!");
+				purge();
+			});			
+		}
 	}
 };
 module.exports = {

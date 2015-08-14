@@ -55,4 +55,4 @@ module.exports = {
 	detect: detect
 };
 
-detect();
+//detect();

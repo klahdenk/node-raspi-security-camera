@@ -12,7 +12,6 @@
     "moment": "*",
     "chokidar": "*",
     "node-schedule": "*",
-    "futures": "*",
-    "join": "*"
+    "futures": "2.3.3"
   }
 }
