@@ -10,16 +10,11 @@ var motion = require("./motion");
 
 // Watch for files added to upload queue
 var watcher = chokidar.watch(__dirname + "/" + PHOTO_QUEUE_DIR, {
-	persistent: true,
-	usePolling: true
+	persistent: true
 });
 watcher.on("add", function(path) {
 	console.log("new file in upload queue, uploading: ", path);
 	flickr.enqueue([path]);
-});
-watcher.on("all", function(event, path) {
-	console.log("event: ", event);
-	console.log("path: ", path);
 });
 
 motion.detect();

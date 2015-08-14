@@ -34,7 +34,7 @@ var detect = function() {
 			return;
 		}
 		if (prevFilename && filename.indexOf("~") === -1) {
-			var tolerance = 150;
+			var tolerance = 500;
 			console.log("comparing...");
 			gm.compare(prevFilename, filename, tolerance, function(err, isEqual, equality, raw) {
 				if (!isEqual) {
