@@ -11,6 +11,7 @@
     "gm": "*",
     "moment": "*",
     "chokidar": "*",
-    "node-schedule": "*"
+    "node-schedule": "*",
+    "futures": "*"
   }
 }

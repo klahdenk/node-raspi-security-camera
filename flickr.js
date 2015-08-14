@@ -30,7 +30,7 @@ var connect = function() {
 var uploadPhotos = function(files) {
 	uploading = true;
 	var future = futures.future.create();
-	when(connect).then(function(error, flickr) {
+	connect().when(function(error, flickr) {
 		if (error) {
 			uploading = false;
 			future.deliver(error, undefined);
