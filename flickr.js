@@ -1,6 +1,5 @@
 var fs = require("fs");
 var _ = require("lodash");
-var futures = require("futures");
 var moment = require("moment");
 
 var Flickr = require("flickrapi");
@@ -21,13 +20,14 @@ var uploadPhotos = function(files) {
 	      		is_public: 0,
 	      		is_friend: 0,
 	      		is_family: 0,
-			});			
+		});			
 		});
 
 	  	var uploadOptions = {
-	    	photos: photos
+	    		photos: photos
 	  	};
 
+		console.log("Uploading files: ", files);
 	  	Flickr.upload(uploadOptions, FlickrOptions, function(err, result) {
 	    	if(err) {
 	      		return console.error(err);
@@ -35,7 +35,7 @@ var uploadPhotos = function(files) {
 	    	_.each(files, function(file) {
 	    		fs.unlinkSync(file);	    		
 	    	});
-	  	});
+	  });
 	});	
 };
 

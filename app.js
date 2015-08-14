@@ -18,7 +18,7 @@ if (files.length > 0) {
 
 // Watch for files added to upload queue
 var watcher = chokidar.watch(__dirname + "/" + PHOTO_QUEUE_DIR);
-watcher.on("add", function(path) {
+watcher.on("rename", function(path) {
 	flickr.uploadPhotos([path]);
 });
 
