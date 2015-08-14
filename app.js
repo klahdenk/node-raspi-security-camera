@@ -6,7 +6,7 @@ var cp = require("child_process");
 var _ = require("lodash");
 
 var flickr = require("./flickr");
-var motion = require("./motion");
+var motion = cp.fork("./motion");
 
 // Watch for files added to upload queue
 var watcher = chokidar.watch(__dirname + "/" + PHOTO_QUEUE_DIR, {
@@ -16,5 +16,3 @@ watcher.on("add", function(path) {
 	console.log("new file in upload queue, uploading: ", path);
 	flickr.enqueue([path]);
 });
-
-motion.detect();
