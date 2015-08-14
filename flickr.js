@@ -31,6 +31,7 @@ var uploadPhotos = function(files) {
 	uploading = true;
 	var future = futures.future.create();
 	connect().when(function(error, flickr) {
+		console.log("Flickr", flickr);
 		if (error) {
 			future.deliver(error, undefined);
 		}
@@ -52,6 +53,7 @@ var uploadPhotos = function(files) {
 
 		console.log("Uploading files: ", files);
 	  	Flickr.upload(uploadOptions, FlickrOptions, function(err, result) {
+			console.log("Uploaded...");
 	    	if(err) {
 	      		console.error(err);
 	      		future.deliver(err, undefined);
