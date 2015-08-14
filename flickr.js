@@ -32,7 +32,6 @@ var uploadPhotos = function(files) {
 	var future = futures.future.create();
 	connect().when(function(error, flickr) {
 		if (error) {
-			uploading = false;
 			future.deliver(error, undefined);
 		}
 		var photos = [];
@@ -55,7 +54,6 @@ var uploadPhotos = function(files) {
 	  	Flickr.upload(uploadOptions, FlickrOptions, function(err, result) {
 	    	if(err) {
 	      		console.error(err);
-	      		uploading = false;
 	      		future.deliver(err, undefined);
 	    	}
 	    	else {
@@ -63,7 +61,6 @@ var uploadPhotos = function(files) {
 					console.log("Deleting: ", file);
 		    		fs.unlinkSync(file);	    		
 		    	});
-				uploading = false;		    	
 		    	future.deliver(undefined, result);
 				console.log("Done uploading!");
 	    	}
@@ -79,7 +76,9 @@ var enqueue = function(files) {
 
 var purge = function() {
 	if (!uploading) {		
-		uploadPhotos(fileArray);
+		uploadPhotos(fileArray).when(function(err, data) {
+			uploading = false;			
+		});
 		fileArray = [];
 	}
 };
