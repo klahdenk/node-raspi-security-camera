@@ -28,16 +28,22 @@ var detect = function() {
 		console.log(filename, prevFilename);
 		if (err) {
 			console.err(err);
+			return;
 		}
 		if (prevFilename && filename.indexOf("~") === -1) {
 			var tolerance = 15;
+			console.log("comparing...");
 			gm.compare(prevFilename, filename, tolerance, function(err, isEqual, equality) {
 				if (!isEqual) {
+					console.log("movement!");
 					fs.createReadStream(__dirname + "/" + CAM_OUTPUT_FOLDER + "/" + filename).pipe(fs.createWriteStream(__dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".jpg"));
 				}
 			});
 		}
 		if (filename.indexOf("~") === -1) {
+			fs.unlink(prevFilename, function() {
+				console.log("removed files");
+			});
 			prevFilename = filename;
 		}
 	});

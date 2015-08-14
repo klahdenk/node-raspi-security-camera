@@ -20,7 +20,7 @@ var uploadPhotos = function(files) {
 	      		is_public: 0,
 	      		is_friend: 0,
 	      		is_family: 0,
-		});			
+			});			
 		});
 
 	  	var uploadOptions = {
@@ -35,7 +35,7 @@ var uploadPhotos = function(files) {
 	    	_.each(files, function(file) {
 	    		fs.unlinkSync(file);	    		
 	    	});
-	  });
+	  	});
 	});	
 };
 
