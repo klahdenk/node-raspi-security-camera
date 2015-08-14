@@ -2,6 +2,7 @@ var fs = require("fs");
 var _ = require("lodash");
 var moment = require("moment");
 var futures = require("futures");
+var joins = require("join");
 
 var Flickr = require("flickrapi");
 var FlickrOptions = {
@@ -29,46 +30,43 @@ var connect = function() {
 
 var uploadPhotos = function(files) {
 	uploading = true;
-	var future = futures.future.create();
+	var join = joins.create();
 	connect().when(function(error, flickr) {
 		console.log("Flickr", flickr);
 		if (error) {
 			future.deliver(error, undefined);
 		}
-		var photos = [];
 		_.each(files, function(file) {
-			photos.push({
-	      		title: moment().format("YYYY-MM-DD"),
-	      		tags: [],
-	      		photo: file,
-	      		is_public: 0,
-	      		is_friend: 0,
-	      		is_family: 0,
-			});			
+			var context = {
+				photos: [{
+		      		title: moment().format("YYYY-MM-DD"),
+		      		tags: [],
+		      		photo: file,
+		      		is_public: 0,
+		      		is_friend: 0,
+		      		is_family: 0
+				}]
+			};
+			var future = futures.future.create(context);
+			console.log("Uploading files: ", files);
+		  	Flickr.upload(context, FlickrOptions, function(err, result) {
+				console.log("Uploaded...");
+		    	if(err) {
+		      		console.error(err);
+		      		future.deliver(err, undefined);
+		    	}
+		    	else {
+			    	_.each(files, function(file) {
+						console.log("Deleting: ", file);
+			    		fs.unlinkSync(file);	    		
+			    	});
+			    	future.deliver(undefined, result);
+		    	}
+		  	});
+			join.add(future);
 		});
-
-	  	var uploadOptions = {
-	    		photos: photos
-	  	};
-
-		console.log("Uploading files: ", files);
-	  	Flickr.upload(uploadOptions, FlickrOptions, function(err, result) {
-			console.log("Uploaded...");
-	    	if(err) {
-	      		console.error(err);
-	      		future.deliver(err, undefined);
-	    	}
-	    	else {
-		    	_.each(files, function(file) {
-					console.log("Deleting: ", file);
-		    		fs.unlinkSync(file);	    		
-		    	});
-		    	future.deliver(undefined, result);
-				console.log("Done uploading!");
-	    	}
-	  	});
 	});
-	return future;
+	return join;
 };	
 
 var enqueue = function(files) {
@@ -78,10 +76,11 @@ var enqueue = function(files) {
 
 var purge = function() {
 	if (!uploading) {		
-		uploadPhotos(fileArray).when(function(err, data) {
+		var filesToUpload = fileArray.splice(0, 5);
+		uploadPhotos(filesToUpload).when(function(err, data) {
 			uploading = false;			
+			console.log("Done uploading!");
 		});
-		fileArray = [];
 	}
 };
 module.exports = {
