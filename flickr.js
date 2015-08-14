@@ -30,9 +30,11 @@ var uploadPhotos = function(files) {
 		console.log("Uploading files: ", files);
 	  	Flickr.upload(uploadOptions, FlickrOptions, function(err, result) {
 	    	if(err) {
-	      		return console.error(err);
+	      		console.error(err);
+	      		return;
 	    	}
 	    	_.each(files, function(file) {
+				console.log("Deleting: ", file);
 	    		fs.unlinkSync(file);	    		
 	    	});
 	  	});
