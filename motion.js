@@ -48,7 +48,7 @@ var detect = function() {
 			});
 		}
 		if (filename.indexOf("~") === -1) {
-			if (prevFilename) {
+			if (prevFilename && fs.existsSync(root + "/" + prevFilename)) {
 				fs.unlinkSync(root + "/" + prevFilename);				
 			}
 			prevFilename = filename;
