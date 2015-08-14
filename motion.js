@@ -39,7 +39,7 @@ var detect = function() {
 			gm.compare(prevFilename, filename, tolerance, function(err, isEqual, equality, raw) {
 				if (!isEqual) {
 					console.log("movement! " + raw);
-					fse.copySync(__dirname + "/" + CAM_OUTPUT_FOLDER + "/" + filename, __dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".jpg");
+					fse.copySync(__dirname + "/" + CAM_OUTPUT_FOLDER + "/" + filename, __dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".png");
 					console.log("copied " + filename + " to queue");
 				}
 			});
