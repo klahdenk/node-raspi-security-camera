@@ -1,6 +1,7 @@
 var fs = require("fs");
 var _ = require("lodash");
 var moment = require("moment");
+var futures = require("futures");
 
 var Flickr = require("flickrapi");
 var FlickrOptions = {
@@ -9,15 +10,31 @@ var FlickrOptions = {
 _.extend(FlickrOptions, JSON.parse(fs.readFileSync("keys/flickr_api_keys.json")));
 _.extend(FlickrOptions, JSON.parse(fs.readFileSync("keys/flickr_access_token.json")));
 
-var uploadPhotos = function(files) {
-	console.error("Authenticating...");			
+var fileArray = [];
+var uploading = false;
+
+var connect = function() {
+	var future = futures.future.create();
 	Flickr.authenticate(FlickrOptions, function(error, flickr) {
-		console.error("flickr", flickr);			
 		if (error) {
-			console.error("Authentication error: ", error);			
-			return;
+			console.error("Authentication error: ", error);
+			future.deliver(error, undefined);
 		}
-		
+		else {
+			future.deliver(undefined, flickr);			
+		}
+	});
+	return future;
+};
+
+var uploadPhotos = function(files) {
+	uploading = true;
+	var future = futures.future.create();
+	when(connect).then(function(error, flickr) {
+		if (error) {
+			uploading = false;
+			future.deliver(error, undefined);
+		}
 		var photos = [];
 		_.each(files, function(file) {
 			photos.push({
@@ -38,17 +55,35 @@ var uploadPhotos = function(files) {
 	  	Flickr.upload(uploadOptions, FlickrOptions, function(err, result) {
 	    	if(err) {
 	      		console.error(err);
-	      		return;
+	      		uploading = false;
+	      		future.deliver(err, undefined);
 	    	}
-	    	_.each(files, function(file) {
-				console.log("Deleting: ", file);
-	    		fs.unlinkSync(file);	    		
-	    	});
+	    	else {
+		    	_.each(files, function(file) {
+					console.log("Deleting: ", file);
+		    		fs.unlinkSync(file);	    		
+		    	});
+				uploading = false;		    	
+		    	future.deliver(undefined, result);
+				console.log("Done uploading!");
+	    	}
 	  	});
-		console.log("Done uploading!");
-	});	
-};
+	});
+	return future;
+};	
 
+var enqueue = function(files) {
+	fileArray = fileArray.concat(files);
+	purge();
+}
+
+var purge = function() {
+	if (!uploading) {		
+		uploadPhotos(fileArray);
+		fileArray = [];
+	}
+};
 module.exports = {
-	uploadPhotos: uploadPhotos
+	enqueue: enqueue,
+	purge: purge
 };

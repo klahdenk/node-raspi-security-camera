@@ -15,7 +15,7 @@ var watcher = chokidar.watch(__dirname + "/" + PHOTO_QUEUE_DIR, {
 });
 watcher.on("add", function(path) {
 	console.log("new file in upload queue, uploading: ", path);
-	flickr.uploadPhotos([path]);
+	flickr.enqueue([path]);
 });
 watcher.on("all", function(event, path) {
 	console.log("event: ", event);
