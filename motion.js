@@ -14,11 +14,11 @@ var cameraOpts = {
 	mode: "timelapse",	
 	timelapse: 500,
 	timeout: 0,
-	output: __dirname + "/" + CAM_OUTPUT_FOLDER + "/image_%06d.png",
-	width: 259,
-	height: 194,
+	output: __dirname + "/" + CAM_OUTPUT_FOLDER + "/image_%06d.jpg",
+	width: 150,
+	height: 100,
 	quality: 30,
-	encoding: "png",
+	encoding: "jpg",
 	exposure: "auto",
 	awb: "auto",
 	metering: "matrix",
@@ -42,7 +42,7 @@ var detect = function() {
 			gm.compare(file1, file2, tolerance, function(err, isEqual, equality, raw) {
 				if (!isEqual) {
 					console.log("movement! " + raw);
-					fse.copySync(file2, __dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".png");
+					fse.copySync(file2, __dirname + "/photo_queue/" + moment().format("YYYY-MM-DD_HH:mm:ss") + ".jpg");
 					console.log("copied " + filename + " to queue");
 				}
 			});
