@@ -10,7 +10,9 @@ _.extend(FlickrOptions, JSON.parse(fs.readFileSync("keys/flickr_api_keys.json"))
 _.extend(FlickrOptions, JSON.parse(fs.readFileSync("keys/flickr_access_token.json")));
 
 var uploadPhotos = function(files) {
+	console.error("Authenticating...");			
 	Flickr.authenticate(FlickrOptions, function(error, flickr) {
+		console.error("flickr", flickr);			
 		if (error) {
 			console.error("Authentication error: ", error);			
 			return;
@@ -43,6 +45,7 @@ var uploadPhotos = function(files) {
 	    		fs.unlinkSync(file);	    		
 	    	});
 	  	});
+		console.log("Done uploading!");
 	});	
 };
 
